@@ -1,10 +1,5 @@
-from services.day1 import do_day1
-from services.day2 import do_day2
-
-
 def main():
-    # do_day1()
-    do_day2()
+    print("Welcome to AoC 2025.  Just run the code directly in the solutions folder")
 
 
 if __name__ == "__main__":

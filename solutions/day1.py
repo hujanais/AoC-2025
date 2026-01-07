@@ -31,3 +31,7 @@ def do_work(filepath: str):
             result += 1
 
     print(f"final dial position: {dial_position}.  Password: {result}")
+
+
+if __name__ == "__main__":
+    do_day1()
