@@ -14,8 +14,7 @@ def do_work(filepath: str):
         [startVal, endVal] = range.split("-")
         repeats_arr = find_repeats(int(startVal), int(endVal))
 
-        for val in repeats_arr:
-            result += val
+        result += sum(repeats_arr)
 
     print(f"Result: {result}")
 
