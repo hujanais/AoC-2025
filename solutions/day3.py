@@ -27,9 +27,12 @@ def _findLargestPair(strValue: str) -> int:
 
     while idx1 < len(strValue) - 1:
         idx2 = idx1 + 1
+
+        # don't bother to check if the tens value is lower
         if int(strValue[idx1]) < maxTensValue:
             idx1 += 1
             continue
+
         while idx2 < len(strValue):
             curValue = int(f"{strValue[idx1]}{strValue[idx2]}")
             if curValue > largestValue:
@@ -41,14 +44,6 @@ def _findLargestPair(strValue: str) -> int:
 
     # print(f"largest value: {largestValue}")
     return largestValue
-
-
-def dp(strValue: str, idx1: int, idx2: int) -> int | None:
-    strLen = len(strValue)
-
-    # Base cases
-    if strLen <= 1:
-        return None
 
 
 if __name__ == "__main__":
