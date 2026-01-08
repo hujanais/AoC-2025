@@ -1,5 +1,5 @@
 def day3():
-    solve("./data/day3_test.txt")  # 98 + 89 + 78 + 92 = 357
+    # solve("./data/day3_test.txt")  # 357, 3121910778619
     solve("./data/day3.txt")  # 11766
 
 
@@ -9,10 +9,20 @@ def solve(filepath: str):
         rows: list[str] = [row.strip() for row in rows]
 
     result = 0
+    result2 = 0
+
+    import time
+
+    start_time = time.perf_counter()
     for row in rows:
         result += _findLargestPair(row)
+        result2 += int(_findLargest12(row))
 
-    print(f"total joltage: {result}")
+    end_time = time.perf_counter()
+    elapsed_time = end_time - start_time
+    print(f"Elapsed Time: {elapsed_time}")
+
+    print(f"total joltage: {result}, {result2}")
 
 
 def _findLargestPair(strValue: str) -> int:
@@ -44,6 +54,52 @@ def _findLargestPair(strValue: str) -> int:
 
     # print(f"largest value: {largestValue}")
     return largestValue
+
+
+def _findLargest12(s: str, start=0, current=""):
+    # # Base case: we've selected n characters
+    # if len(current) == 12:
+    #     return current
+
+    # # Base case: not enough characters left
+    # if start >= len(s):
+    #     return "0"
+
+    maxValueStr = "0"
+    for i in range(start, len(s)):
+        newStr = current + s[i]
+        val = newStr
+        if len(newStr) < 3:
+            val = _findLargest12(s, i + 1, newStr)
+        maxValueStr = str(max(int(maxValueStr), int(val)))
+
+    return maxValueStr
+
+
+# def _findLargest12(s: str, start=0, current=""):
+#     # Base case: we've selected n characters
+#     if len(current) == 12:
+#         return current
+
+#     # Base case: not enough characters left
+#     if start >= len(s):
+#         return "0"
+
+#     maxValueStr = "0"
+#     for i in range(start, len(s)):
+#         # pre-check for optimization
+#         newStr = current + s[i]
+#         if len(maxValueStr) > 1:
+#             count = len(newStr)
+#             to_test_str = maxValueStr[0:count]
+#             if int(to_test_str) >= int(newStr):
+#                 continue
+
+#         val = _findLargest12(s, i + 1, newStr)
+#         maxValueStr = str(max(int(maxValueStr), int(val)))
+
+#     print(f"largest value: {maxValueStr}")
+#     return maxValueStr
 
 
 if __name__ == "__main__":
