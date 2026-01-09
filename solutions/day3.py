@@ -1,7 +1,8 @@
-def day3():
-    # solve("./data/day3_test.txt")  # 357, 3121910778619
-    solve("./data/day3.txt")  # 11766
+import time
 
+def day3():
+    solve("./data/day3_test.txt")  # 357, 3121910778619
+    # solve("./data/day3.txt")  # 17766, 176582889354075 This is very slow. many minutes!
 
 def solve(filepath: str):
     with open(filepath, "r") as file:
@@ -10,20 +11,12 @@ def solve(filepath: str):
 
     result = 0
     result2 = 0
-
-    import time
-
-    start_time = time.perf_counter()
     for row in rows:
         result += _findLargestPair(row)
         result2 += int(_findLargest12(row))
+        print(f"- {result} {result2}")
 
-    end_time = time.perf_counter()
-    elapsed_time = end_time - start_time
-    print(f"Elapsed Time: {elapsed_time}")
-
-    print(f"total joltage: {result}, {result2}")
-
+    print(f"{result}, {result2}")
 
 def _findLargestPair(strValue: str) -> int:
     # print(f"find largest: {strValue}")
@@ -57,50 +50,24 @@ def _findLargestPair(strValue: str) -> int:
 
 
 def _findLargest12(s: str, start=0, current=""):
-    # # Base case: we've selected n characters
-    # if len(current) == 12:
-    #     return current
-
-    # # Base case: not enough characters left
-    # if start >= len(s):
-    #     return "0"
-
     maxValueStr = "0"
     for i in range(start, len(s)):
         newStr = current + s[i]
         val = newStr
-        if len(newStr) < 3:
-            val = _findLargest12(s, i + 1, newStr)
+        if len(newStr) < 12:
+            count = len(newStr)
+            maxValue = int(maxValueStr[0:count])
+            if int(newStr) > maxValue:
+                val = _findLargest12(s, i + 1, newStr)
         maxValueStr = str(max(int(maxValueStr), int(val)))
 
     return maxValueStr
 
-
-# def _findLargest12(s: str, start=0, current=""):
-#     # Base case: we've selected n characters
-#     if len(current) == 12:
-#         return current
-
-#     # Base case: not enough characters left
-#     if start >= len(s):
-#         return "0"
-
-#     maxValueStr = "0"
-#     for i in range(start, len(s)):
-#         # pre-check for optimization
-#         newStr = current + s[i]
-#         if len(maxValueStr) > 1:
-#             count = len(newStr)
-#             to_test_str = maxValueStr[0:count]
-#             if int(to_test_str) >= int(newStr):
-#                 continue
-
-#         val = _findLargest12(s, i + 1, newStr)
-#         maxValueStr = str(max(int(maxValueStr), int(val)))
-
-#     print(f"largest value: {maxValueStr}")
-#     return maxValueStr
-
-
 if __name__ == "__main__":
     day3()
+    # start_time = time.perf_counter()
+    # # print(_findLargestPair("731122458443"))
+    # print(_findLargest12("6739459674389333459433695375559949344734767926833587823236783998689734978783695374574455875833736627"))
+    # end_time = time.perf_counter()
+    # elapsed_time = end_time - start_time
+    # print(f"Elapsed Time: {elapsed_time}")

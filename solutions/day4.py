@@ -1,13 +1,14 @@
-from pprint import pprint
-
+import copy
+from utilities.grid_print import print_grid
 
 def day4():
-    print(solve("./data/day4_test.txt"))
-    print(solve("./data/day4.txt"))
+    print(solve("./data/day4_test.txt")) # 43
+    # print(solve("./data/day4.txt")) # 8310
 
 
 def solve(filepath: str) -> int:
     grid: list[list[int]] = []
+    shadow_grid: list[list[int]] = []
     result = 0
 
     with open(filepath, "r") as file:
@@ -23,13 +24,23 @@ def solve(filepath: str) -> int:
 
             grid.append(rowArr)
 
-        pprint(grid)
+    shadow_grid = copy.deepcopy(grid)
+    print_grid(grid)
 
-    for row in range(len(grid)):
-        for col in range(len(grid[0])):
-            if grid[row][col] == "@":
-                if count_neighbors(grid, row, col) < 4:
-                    result += 1
+    canMove = True
+    while canMove:
+        canMove = False
+        for row in range(len(grid)):
+            for col in range(len(grid[0])):
+                if grid[row][col] == "@":
+                    if count_neighbors(grid, row, col) < 4:
+                        canMove = True
+                        shadow_grid[row][col] = '.'
+                        result += 1
+
+        print()
+        print_grid(shadow_grid)
+        grid = copy.deepcopy(shadow_grid)
 
     return result
 
