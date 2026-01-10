@@ -2,9 +2,10 @@ from functools import total_ordering
 
 
 def day7():
-    # solve_a('./data/day7_test.txt')
-    solve_a('./data/day7.txt')
-
+    # solve_a('./data/day7_test.txt') # 21
+    # solve_a('./data/day7.txt') # 1537
+    # solve_b('./data/day7_test.txt') # 40
+    solve_b('./data/day7.txt') # 18818811755665
 def solve_a(filepath: str):
     with open(filepath, 'r') as file:
         lines = list(map(lambda x: x.strip(), file.readlines()))
@@ -50,6 +51,48 @@ def solve_a(filepath: str):
                 print(line)
 
     print(f"Total splits: {total_splits}")
+
+def solve_b(filepath: str):
+    with open(filepath, 'r') as file:
+        lines = list(map(lambda x: x.strip(), file.readlines()))
+
+    grid: list[list[str]] = build_grid(lines)
+    # find the starting point 'S'
+    startCol = [0, grid[0].index('S')]
+
+    total_paths = dfs(grid, position = startCol)
+    print(f"Total Paths: {total_paths}")
+
+# find all paths
+def dfs(grid: list[list[str]], position: list[int, int], dp: dict[str, int] = dict()) -> int:
+    endRow = len(grid) - 1
+    
+    # out of bounds
+    if position[1] < 0 or position[1] >= len(grid[0]):
+        return 0
+    
+    # end-point
+    if position[0] == endRow:
+        return 1
+    
+    row = position[0]
+    col = position[1]
+
+    key = f"{row}-{col}" 
+    if key in dp:
+        return dp[key]
+
+    paths = 0
+    if grid[row+1][col] == '.':
+        paths += dfs(grid, [row+1, col])
+    else:
+        # move left
+        paths += dfs(grid, [row+1, col-1])
+        # move right
+        paths += dfs(grid, [row+1, col+1])
+
+    dp[key] = paths
+    return paths
 
 def build_grid(lines: str) -> list[list[str]]:
     rows = len(lines)
