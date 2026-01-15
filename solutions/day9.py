@@ -105,10 +105,11 @@ def ray_trace(point: tuple[int, int], points: list[tuple[int, int]]) -> bool:
 
     row, col = point
 
+    test_line = list(filter(lambda x: x[1] == col, points))
     # scan up
-    test_line = filter(lambda x: x[1] == col for point in points)
-
     # scan down
+
+    test_line = list(filter(lambda x: x[0] == row, points))
     # scan right
     # scan left
 
