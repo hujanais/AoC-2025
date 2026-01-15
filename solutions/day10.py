@@ -1,7 +1,10 @@
 def day10():
     # problem_sets = read_file("./data/day10_test.txt")
-    problem_sets = read_file("./data/day10.txt") # 432 too high
-    solve_a(problem_sets)
+    problem_sets = read_file(
+        "./data/day10.txt"
+    )  # 422 had to run row 66 with depth of 10.
+    # solve_a(problem_sets)
+    solve_b(problem_sets)
 
 
 def solve_a(problem_sets):
@@ -12,11 +15,18 @@ def solve_a(problem_sets):
         initial_state = [False for i in range(len(target))]
         target = prob[0]
         actions = prob[1]
-        min_steps, shortest_path = exp(target=target, actions=actions, state=initial_state)
+        min_steps, shortest_path = exp(
+            target=target, actions=actions, state=initial_state
+        )
         print(f"{idx} min_steps = {min_steps}, path = {shortest_path}")
         result += min_steps
         idx += 1
     print(f"result = {result}")
+
+
+def solve_b(problem_sets):
+    pass
+
 
 def exp(
     target,
@@ -33,12 +43,17 @@ def exp(
 
     indent = "." * (depth - 1)
 
+    path_set = set(tuple(inner_list) for inner_list in path)
+    if len(path_set) != len(path):
+        # print("redundant path")
+        return (100000, None)
+
     if target == state:
         # print(f"##{indent}{path}")
         return (0, path.copy())
 
     # prevent infinite loop
-    if depth > 5:
+    if depth > 7:
         return (100000, None)
 
     min_steps = 100000
@@ -49,19 +64,25 @@ def exp(
             continue
         new_state = perform_action(state, actions[i])
         path.append(actions[i])
-        steps, sub_path = exp(
-            target,
-            actions,
-            new_state,
-            last_action_idx=i,
-            depth=depth + 1,
-            path=path,
-        )
-        steps += 1
+
+        if len(path) > min_steps:
+            # print("skip")
+            steps = 1000
+        else:
+            steps, sub_path = exp(
+                target,
+                actions,
+                new_state,
+                last_action_idx=i,
+                depth=depth + 1,
+                path=path,
+            )
+            steps += 1
+
         if steps < min_steps:
             min_steps = steps
             best_path = sub_path.copy() if sub_path else None
-        
+
         path.pop()  # Backtrack: remove the action we just tried
 
     return (min_steps, best_path)
