@@ -1,6 +1,6 @@
 def day9():
-    # grid = read_data = read_file("./data/day9_test.txt")  # 50
-    grid = read_file("./data/day9.txt")  # 4741848414
+    grid = read_data = read_file("./data/day9_test.txt")  # 50
+    # grid = read_file("./data/day9.txt")  # 4741848414
     reds = find_all_reds(grid)
     find_max_rectangle(grid, reds)
 
@@ -54,7 +54,7 @@ def find_all_reds(positions: list[list[int, int]]) -> set[tuple[int, int]]:
     reds: set[tuple[int, int]] = set()
     for i in range(len(points) - 1):
         total_loops -= 1
-        if total_loops % 1000 == 0:
+        if total_loops % 500 == 0:
             print(total_loops)
         for j in range(i + 1, len(points)):
             r0, c0 = points[i]
