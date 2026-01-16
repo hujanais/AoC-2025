@@ -77,6 +77,7 @@ def find_max_rectangle(
             br = (max(r0, r1), max(c0, c1))
 
             # this is for part-bn
+            print([area, (ul, ur, bl, br)])
             if outline:
                 if (
                     ray_trace(ul, outline)
@@ -86,7 +87,9 @@ def find_max_rectangle(
                 ):
                     rectangles.append([area, (ul, ur, bl, br)])
                     max_area = max(max_area, area)
-
+            else:
+                rectangles.append([area, (ul, ur, bl, br)])
+                max_area = max(max_area, area)
     rectangles.sort(key=lambda x: x[0], reverse=True)
     for rect in rectangles:
         print(rect)
@@ -96,23 +99,27 @@ def find_max_rectangle(
 
 # use ray-tracing to see if the point will intersect 4 sides of the outline.
 def ray_trace(point: tuple[int, int], points: list[tuple[int, int]]) -> bool:
-    points.sort(key=lambda x: x[0])
-    min_row = points[0][0]
-    max_row = points[-1][0]
-    points.sort(key=lambda x: x[1])
-    min_col = points[0][1]
-    max_col = points[-1][1]
-
     row, col = point
 
+    # test row
+    points.sort(key=lambda x: x[0])
     test_line = list(filter(lambda x: x[1] == col, points))
-    # scan up
-    # scan down
+    row_lowerbound, _ = test_line[0]
+    row_upperbound, _ = test_line[-1]
+    if row < row_lowerbound or row > row_upperbound:
+        return False
 
+    # test column
+    points.sort(key=lambda x: x[1])
     test_line = list(filter(lambda x: x[0] == row, points))
+    _, col_lowerbound = test_line[0]
+    _,col_upperbound = test_line[-1]
     # scan right
     # scan left
+    if col < col_lowerbound or col > col_upperbound:
+        return False
 
+    return True
 
 if __name__ == "__main__":
     day9()
