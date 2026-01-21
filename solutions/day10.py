@@ -3,8 +3,8 @@ def day10():
     problem_sets = read_file(
         "./data/day10.txt"
     )  # 422 had to run row 66 with depth of 10.
-    # solve_a(problem_sets)
-    solve_b(problem_sets)
+    solve_a(problem_sets)
+    # solve_b(problem_sets)
 
 
 def solve_a(problem_sets):
@@ -35,11 +35,19 @@ def exp(
     last_action_idx=-1,
     depth=0,
     path: list[list[int]] | None = None,
+    dp=None,
 ):
     if path is None:
         path = []
     # target # [False,True,True,False]
     # actions  # [[3],[1,3],[2,3]]
+
+    if dp is None:
+        dp = {}
+
+    key = (tuple(state), last_action_idx, depth)
+    if key in dp:
+        return dp[key]
 
     indent = "." * (depth - 1)
 
@@ -76,6 +84,7 @@ def exp(
                 last_action_idx=i,
                 depth=depth + 1,
                 path=path,
+                dp=dp,
             )
             steps += 1
 
@@ -85,6 +94,7 @@ def exp(
 
         path.pop()  # Backtrack: remove the action we just tried
 
+    dp[key] = (min_steps, best_path)
     return (min_steps, best_path)
 
 
@@ -95,6 +105,21 @@ def perform_action(state: list[bool], action_arr: list[int]) -> list[bool]:
         new_state[action] = not new_state[action]
 
     return new_state
+
+
+# def perform_action(
+#     state: list[bool], action_arr: list[int], joltage_input: list[int] = None
+# ) -> tuple[list[bool], list[int]]:
+#     # Create a copy to avoid mutating the original state
+#     new_state = state.copy()
+#     joltages = joltage_input.copy() if joltage_input else None
+
+#     for action in action_arr:
+#         new_state[action] = not new_state[action]
+#         if joltage_input:
+#             joltages[action] += 1
+
+#     return new_state, joltages
 
 
 def read_file(filepath: str):
