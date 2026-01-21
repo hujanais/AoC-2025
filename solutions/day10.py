@@ -30,23 +30,18 @@ def solve_b(problem_sets):
     idx = 0
     for prob in problem_sets[0:1]:
         target = prob[0]
-        initial_state = [False for i in range(len(target))]
-        initial_joltages = [0 for i in range(len(target))]
-        target = prob[0]
+        initial_state = [0 for i in range(len(target))]
         actions = prob[1]
-        joltage_str = prob[2].replace("{", "").replace("}", "")
-        joltage_target = list(map(lambda x: int(x), joltage_str.split(",")))
-
-        min_steps = exp_b(
-            joltage_target=joltage_target,
-            actions=actions,
-            joltages=initial_joltages,
-            state=initial_state,
+        joltage_target = list(
+            map(lambda x: int(x), prob[2].replace("{", "").replace("}", "").split(","))
         )
-        print(f"{idx} min_steps = {min_steps}")
+        min_steps, shortest_path = bfs(
+            target=joltage_target, actions=actions, state=initial_state
+        )
+        print(f"{idx} min_steps = {min_steps}, path = {shortest_path}")
         result += min_steps
         idx += 1
-    print(f"result b = {result}")
+    print(f"result-b = {result}")
 
 
 def exp(
@@ -56,12 +51,19 @@ def exp(
     last_action_idx=-1,
     depth=0,
     path: list[list[int]] | None = None,
-    memo=None,
+    dp=None,
 ):
     if path is None:
         path = []
     # target # [False,True,True,False]
     # actions  # [[3],[1,3],[2,3]]
+
+    if dp is None:
+        dp = {}
+
+    key = (tuple(state), last_action_idx, depth)
+    if key in dp:
+        return dp[key]
 
     indent = "." * (depth - 1)
 
@@ -74,11 +76,9 @@ def exp(
 
     path_set = set(tuple(inner_list) for inner_list in path)
     if len(path_set) != len(path):
-        # print("redundant path")
         return (100000, None)
 
     if target == state:
-        # print(f"##{indent}{path}")
         return (0, path.copy())
 
     # prevent infinite loop
@@ -91,7 +91,7 @@ def exp(
     for i in range(len(actions)):
         if i == last_action_idx:
             continue
-        new_state, new_joltages = perform_action(state, actions[i], joltage_input=None)
+        new_state, _ = perform_action(state, actions[i], None)
         path.append(actions[i])
 
         if len(path) > min_steps:
@@ -105,7 +105,7 @@ def exp(
                 last_action_idx=i,
                 depth=depth + 1,
                 path=path,
-                memo=memo,
+                dp=dp,
             )
             steps += 1
 
@@ -115,70 +115,70 @@ def exp(
 
         path.pop()  # Backtrack: remove the action we just tried
 
-    memo[key] = (min_steps, best_path)
+    dp[key] = (min_steps, best_path)
     return (min_steps, best_path)
 
 
-def exp_b(
-    joltage_target: list[int],
+def bfs(
+    target: list[int],
     actions: list[list[int]],
-    joltages: list[int],
-    state: list[bool],
-    idx: int = 0,
+    state: list[int],
     depth=0,
+    path: list[list[int]] | None = None,
     dp=None,
 ):
-    # target # [False,True,True,False]
-    # actions  # [[3],[1,3],[2,3]]
-
-    indent = "." * (depth - 1)
+    if path is None:
+        path = []
 
     if dp is None:
         dp = {}
 
-    key = tuple(joltages)
+    key = (tuple(state), depth)
     if key in dp:
         return dp[key]
 
-    if depth > 50:  # Adjust based on problem constraints
-        return 100000
+    if target == state:
+        return (0, path.copy())
 
-    if joltages == joltage_target:
-        print("done")
-        return 0
-
-    if any(a > b for a, b in zip(joltages, joltage_target)):
-        return 100000
-
-    print(f"{indent} {actions[idx]}")
+    target_sum = sum(target)
+    current_sum = sum(state)
+    if current_sum > target_sum:
+        print(f"skip. {current_sum} > {target_sum}")
+        return (100000, None)
 
     # prevent infinite loop
-    if depth > 11:
-        return 100000
+    if depth > 20:
+        return (100000, None)
 
     min_steps = 100000
+    best_path = None
 
     for i in range(len(actions)):
-        new_state, new_joltages = perform_action(
-            state, actions[i], joltage_input=joltages
-        )
+        _, new_joltage = perform_action(state, actions[i], state)
+        path.append(actions[i])
 
-        steps = exp_b(
-            joltage_target,
-            actions,
-            new_joltages,
-            new_state,
-            i,
-            depth=depth + 1,
-            dp=dp,
-        )
-        steps += 1
+        if depth > min_steps:
+            # print(f"skip. {depth} > {min_steps}")
+            steps = 1000
+        else:
+            steps, sub_path = bfs(
+                target=target,
+                actions=actions,
+                state=new_joltage,
+                depth=depth + 1,
+                path=path,
+                dp=dp,
+            )
+            steps += 1
 
         if steps < min_steps:
             min_steps = steps
+            best_path = sub_path.copy() if sub_path else None
 
-    dp[key] = min_steps
-    return min_steps
+        path.pop()  # Backtrack: remove the action we just tried
+
+    dp[key] = (min_steps, best_path)
+    return (min_steps, best_path)
 
 
 def perform_action(
