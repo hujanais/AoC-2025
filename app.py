@@ -1,41 +1,80 @@
 import polars as pl
+import numpy as np
+
+
+def main():
+    print("Welcome to AoC 2025.  Just run the code directly in the solutions folder")
 
 
 def inspect_parquet():
+    # Set a seed for reproducibility
+    np.random.seed(42)
+
+    # Create mock data
+    num_entries = 50
+
+    filenames = [f"nitf_file_{i+1}" for i in range(num_entries)]
+    point_ids = [f"pointid_{i+1}" for i in range(num_entries)]
+    longitudes = np.random.uniform(42.375, 42.385, num_entries).tolist()
+    latitudes = np.random.uniform(-71.105, -71.100, num_entries).tolist()
+    elevations = np.random.uniform(10, 20, num_entries).tolist()
+    pixel_x = np.random.uniform(1000, 3000, num_entries).tolist()
+    pixel_y = np.random.uniform(700, 1100, num_entries).tolist()
+    grid_x = np.random.uniform(5, 25, num_entries).tolist()
+    grid_y = np.random.uniform(5, 15, num_entries).tolist()
+    pixels_between_grid_cols = [100] * num_entries
+    pixels_between_grid_rows = [100] * num_entries
+    image_ids = [f"IMG_{str(i+1).zfill(3)}" for i in range(num_entries)]
+    sensor_x = np.random.uniform(4521200, 4521300, num_entries).tolist()
+    sensor_y = np.random.uniform(-4238300, -4238100, num_entries).tolist()
+    sensor_z = np.random.uniform(4152900, 4153100, num_entries).tolist()
+    nrows = [8192] * num_entries
+    ncols = [8192] * num_entries
+    lat_left = np.random.uniform(-71.110, -71.100, num_entries).tolist()
+    lon_left = np.random.uniform(42.378, 42.380, num_entries).tolist()
+    lat_above = np.random.uniform(-71.105, -71.095, num_entries).tolist()
+    lon_above = np.random.uniform(42.380, 42.382, num_entries).tolist()
+    n_grid_row_shift = np.random.randint(-1, 2, num_entries).tolist()
+    n_grid_col_shift = np.random.randint(-1, 2, num_entries).tolist()
+    gsd_x = [0.5] * num_entries
+    gsd_y = [0.5] * num_entries
+    incidence_angle = np.random.uniform(10, 20, num_entries).tolist()
+
+    # Create the DataFrame
     df = pl.DataFrame(
         {
-            "filename": ["nitf_file_1", "nitf_file_2", "nitf_file_3"],
-            "point_id": ["pointid_1", "pointid_2", "pointid_3"],
-            "longitude": [42.3797, 42.3812, 42.3785],
-            "latitude": [-71.1034, -71.1045, -71.1028],
-            "elevation": [12.3, 15.7, 10.2],
-            "pixel_x": [1024.5, 2048.3, 1536.7],
-            "pixel_y": [768.2, 1024.6, 892.1],
-            "grid_x": [10.25, 20.48, 15.37],
-            "grid_y": [7.68, 10.25, 8.92],
-            "pixels_between_grid_cols": [100, 100, 100],
-            "pixles_between_grid_rows": [100, 100, 100],
-            "image_id": ["IMG_001", "IMG_002", "IMG_003"],
-            "sensor_x": [4521234.5, 4521245.8, 4521228.3],
-            "sensor_y": [-4238156.2, -4238167.5, -4238148.9],
-            "sensor_z": [4152987.3, 4152998.6, 4152980.1],
-            "nrows": [8192, 8192, 8192],
-            "ncols": [8192, 8192, 8192],
-            "lat_left": [-71.1050, -71.1061, -71.1044],
-            "lon_left": [42.3790, 42.3805, 42.3778],
-            "lat_above": [-71.1018, -71.1029, -71.1012],
-            "lon_above": [42.3804, 42.3819, 42.3792],
-            "n_grid_row_shift": [0, 1, -1],
-            "n_grid_col_shift": [0, -1, 1],
-            "gsd_x": [0.5, 0.5, 0.5],
-            "gsd_y": [0.5, 0.5, 0.5],
-            "incidence_angle": [15.3, 18.7, 12.9],
+            "filename": filenames,
+            "point_id": point_ids,
+            "longitude": longitudes,
+            "latitude": latitudes,
+            "elevation": elevations,
+            "pixel_x": pixel_x,
+            "pixel_y": pixel_y,
+            "grid_x": grid_x,
+            "grid_y": grid_y,
+            "pixels_between_grid_cols": pixels_between_grid_cols,
+            "pixels_between_grid_rows": pixels_between_grid_rows,
+            "image_id": image_ids,
+            "sensor_x": sensor_x,
+            "sensor_y": sensor_y,
+            "sensor_z": sensor_z,
+            "nrows": nrows,
+            "ncols": ncols,
+            "lat_left": lat_left,
+            "lon_left": lon_left,
+            "lat_above": lat_above,
+            "lon_above": lon_above,
+            "n_grid_row_shift": n_grid_row_shift,
+            "n_grid_col_shift": n_grid_col_shift,
+            "gsd_x": gsd_x,
+            "gsd_y": gsd_y,
+            "incidence_angle": incidence_angle,
         }
     )
 
-    # df.write_parquet("nitf.parquet")
-    df = pl.read_parquet("nitf.parquet")
-    print(df.columns)
+    df.write_parquet("nitf.parquet")
+    # df = pl.read_parquet("nitf.parquet")
+    # print(df.columns)
 
 
 def get_surrounding_box(coordinates: list[list[float]]):
@@ -52,6 +91,7 @@ def get_surrounding_box(coordinates: list[list[float]]):
 
 
 if __name__ == "__main__":
+
     # Create sample data
     metadata = pl.DataFrame(
         {

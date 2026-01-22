@@ -1,13 +1,13 @@
 def day9():
     solve_for_b = True
 
-    # grid = read_file("./data/day9_test.txt")  # 50, 24
-    grid = read_file("./data/day9.txt")  # 4741848414, 4633585821(too high)
-    # if solve_for_b:
-    #     outline = find_rect_outline(grid)
-    # else:
-    #     outline = None
-    # find_max_rectangle(grid, outline)
+    grid = read_file("./data/day9_test.txt")  # 50, 24
+    # grid = read_file("./data/day9.txt")  # 4741848414, 4633585821(too high)
+    if solve_for_b:
+        outline = find_rect_outline(grid)
+    else:
+        outline = None
+    find_max_rectangle(grid, outline)
 
 
 def read_file(filepath: str) -> list[list[int]]:
@@ -21,28 +21,28 @@ def read_file(filepath: str) -> list[list[int]]:
         positions.append((int(pos[1]), int(pos[0])))  # convert to row,col format
 
     # sort by rows
-    positions.sort(key=lambda x: x[0])
+    positions = sorted(positions, key=lambda x: (x[0], x[1]))
 
     max_rows = max(positions, key=lambda x: x[0])[0]
     max_cols = max(positions, key=lambda x: x[1])[1]
 
-    for position in positions:
-        print(position)
+    # for position in positions:
+    #     print(position)
 
-    for row in range(max_rows):
-        for col in range(max_cols):
-            if (row, col) in positions:
-                print("#", end="")
-            else:
-                print(".", end="")
-        print()
+    # for row in range(max_rows):
+    #     for col in range(max_cols):
+    #         if (row, col) in positions:
+    #             print("#", end="")
+    #         else:
+    #             print(".", end="")
+    #     print()
 
     return positions
 
 
 def find_rect_outline(positions: list[list[int, int]]) -> set[tuple[int, int]]:
     # Build outline
-    points: list[tuple[int, int]] = []
+    points: set[tuple[int, int]] = set()
     for i in range(len(positions) - 1):
         for j in range(i + 1, len(positions)):
             row0, col0 = positions[i]
@@ -50,10 +50,10 @@ def find_rect_outline(positions: list[list[int, int]]) -> set[tuple[int, int]]:
 
             if row0 == row1:
                 for col in range(min(col0, col1), max(col0, col1) + 1):
-                    points.append((row0, col))
+                    points.add((row0, col))
             elif col0 == col1:
                 for row in range(min(row0, row1), max(row0, row1)):
-                    points.append((row, col0))
+                    points.add((row, col0))
 
     return points
 
@@ -81,12 +81,15 @@ def find_max_rectangle(
             r1, c1 = positions[j]
             area = abs((r1 - r0 + 1) * (c1 - c0 + 1))
 
+            # if area is smaller than max_area, skip
+            if area < max_area:
+                continue
+
             # find the 4 corners
             ul = (min(r0, r1), min(c0, c1))
-            ur = (max(r0, r1), min(c0, c1))
-            bl = (min(r0, r1), max(c0, c1))
+            ur = (min(r0, r1), max(c0, c1))
+            bl = (max(r0, r1), min(c0, c1))
             br = (max(r0, r1), max(c0, c1))
-
             # this is for part-b
             if outline:
                 if (
@@ -95,8 +98,13 @@ def find_max_rectangle(
                     and ray_trace(bl, outline_sorted_by_rows, outline_sorted_by_cols)
                     and ray_trace(br, outline_sorted_by_rows, outline_sorted_by_cols)
                 ):
-                    # rectangles.append([area, (ul, ur, bl, br)]) # don't do this to save memory
+                    rectangles.append([area, (ul, ur, bl, br), True])
                     max_area = max(max_area, area)
+                else:
+                    rectangles.append(
+                        [area, (ul, ur, bl, br), False]
+                    )  # don't do this to save memory
+                    pass
             else:
                 rectangles.append([area, (ul, ur, bl, br)])
                 max_area = max(max_area, area)

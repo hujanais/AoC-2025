@@ -1,11 +1,14 @@
+from collections import deque
+
+
 def day10():
     # problem_sets = read_file("./data/day10_test.txt")
     problem_sets = read_file(
         "./data/day10.txt"
     )  # 422 had to run row 66 with depth of 10.
 
-    solve_a(problem_sets)  # 7,
-    # solve_b(problem_sets)  # 33
+    # solve_a(problem_sets)  # 7,
+    solve_b(problem_sets)  # 33
 
 
 def solve_a(problem_sets):
@@ -28,19 +31,46 @@ def solve_a(problem_sets):
 def solve_b(problem_sets):
     result = 0
     idx = 0
-    for prob in problem_sets[0:1]:
-        target = prob[0]
-        initial_state = [0 for i in range(len(target))]
+
+    for prob in problem_sets:
         actions = prob[1]
         joltage_target = list(
             map(lambda x: int(x), prob[2].replace("{", "").replace("}", "").split(","))
         )
-        min_steps, shortest_path = bfs(
-            target=joltage_target, actions=actions, state=initial_state
+
+        # find the first action that has a unique index
+        indices = {}
+        pre_count = 0
+        for i in range(len(actions)):
+            action = actions[i]
+            for act in action:
+                key = str(act)
+                if key in indices:
+                    count, idx = indices[key]
+                    indices[key] = (count + 1, idx)
+                else:
+                    indices[key] = (1, i)
+
+        for key, value in indices.items():
+            if value[0] == 1:
+                # apply action[value[1]]
+                preapply_action = actions[action[1]]
+
+                while all([x > 0 for x in joltage_target]):
+                    pre_count += 1
+                    _, joltage_target = perform_action(
+                        joltage_target, preapply_action, joltage_target
+                    )
+
+                break
+
+        min_steps, shortest_path = bfs(initial_state=joltage_target, actions=actions)
+        print(
+            f"{idx} min_steps = {min_steps} pre-steps={pre_count}, path = {shortest_path}"
         )
-        print(f"{idx} min_steps = {min_steps}, path = {shortest_path}")
-        result += min_steps
+        result += min_steps + pre_count
         idx += 1
+
     print(f"result-b = {result}")
 
 
@@ -120,65 +150,59 @@ def exp(
 
 
 def bfs(
-    target: list[int],
+    initial_state: list[int],
     actions: list[list[int]],
-    state: list[int],
-    depth=0,
-    path: list[list[int]] | None = None,
-    dp=None,
 ):
-    if path is None:
-        path = []
+    target = [0 for i in range(len(initial_state))]
+    queue = deque([(initial_state, 0)])  # ([0,0,0,0], count)
+    visited = set()
 
-    if dp is None:
-        dp = {}
+    while queue:
+        joltage_state, count = queue.popleft()
 
-    key = (tuple(state), depth)
-    if key in dp:
-        return dp[key]
+        # If we reach the target amount, return the number of steps used
+        if joltage_state == target:
+            return (count, [])
 
-    if target == state:
-        return (0, path.copy())
+        # Explore the next amounts we can make from current_amount using the coins
+        for action in actions:
+            _, new_joltage = perform_action(joltage_state, action, joltage_state)
+            if all(n >= 0 for n in joltage_state):
+                if tuple(new_joltage) not in visited:
+                    visited.add(tuple(new_joltage))
+                    queue.append((new_joltage, count + 1))
+            else:
+                print(f"skip. {len(queue)}, {joltage_state}")
 
-    target_sum = sum(target)
-    current_sum = sum(state)
-    if current_sum > target_sum:
-        print(f"skip. {current_sum} > {target_sum}")
-        return (100000, None)
+    return (-1, [])
 
-    # prevent infinite loop
-    if depth > 20:
-        return (100000, None)
 
-    min_steps = 100000
-    best_path = None
+def coin_change_bfs(coins, target):
+    # Initialize a queue for BFS and a visited set to keep track of visited amounts
+    queue = deque([(0, 0)])  # (current_amount, number_of_coins)
+    visited = set()
 
-    for i in range(len(actions)):
-        _, new_joltage = perform_action(state, actions[i], state)
-        path.append(actions[i])
+    while queue:
+        current_amount, num_coins = queue.popleft()
 
-        if depth > min_steps:
-            # print(f"skip. {depth} > {min_steps}")
-            steps = 1000
-        else:
-            steps, sub_path = bfs(
-                target=target,
-                actions=actions,
-                state=new_joltage,
-                depth=depth + 1,
-                path=path,
-                dp=dp,
-            )
-            steps += 1
+        # If we reach the target amount, return the number of coins used
+        if current_amount == target:
+            return num_coins
 
-        if steps < min_steps:
-            min_steps = steps
-            best_path = sub_path.copy() if sub_path else None
+        # Explore the next amounts we can make from current_amount using the coins
+        for coin in coins:
+            next_amount = current_amount + coin
 
-        path.pop()  # Backtrack: remove the action we just tried
+            # Only consider the next amount if it is less than or equal to the target
+            # and has not been visited before
+            if next_amount <= target and next_amount not in visited:
+                visited.add(next_amount)  # Mark this amount as visited
+                queue.append(
+                    (next_amount, num_coins + 1)
+                )  # Add next amount to the queue with incremented coin count
 
-    dp[key] = (min_steps, best_path)
-    return (min_steps, best_path)
+    # If we exhaust the queue without finding the target, return -1
+    return -1
 
 
 def perform_action(
@@ -191,7 +215,7 @@ def perform_action(
     for action in action_arr:
         new_state[action] = not new_state[action]
         if joltage_input:
-            joltages[action] += 1
+            joltages[action] -= 1
 
     return new_state, joltages
 
@@ -224,3 +248,8 @@ def read_file(filepath: str):
 
 if __name__ == "__main__":
     day10()
+    # Example usage
+    # coins = [2, 11]
+    # target = 55
+    # result = coin_change_bfs(coins, target)
+    # print(result)  # Output should be 3 (11 can be made with two 5s and one 1)
