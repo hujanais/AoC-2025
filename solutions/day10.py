@@ -37,8 +37,106 @@ def solve_b(problem_sets):
     # 1486 using 2E6 depth
     # [0, 1, 2, 5, 11, 12, 13, 16, 18, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 33, 34, 38, 39, 40, 44, 45, 46, 48, 49, 51, 53, 54, 62, 64, 65, 66, 67, 69, 70, 71, 72, 73, 74, 76, 78, 79, 82, 83, 86, 87, 91, 93, 95, 96, 98, 99, 100, 102, 105, 106, 107, 108, 111, 113, 114, 115, 116, 119, 120, 121, 122, 123, 124, 125, 127, 130, 131, 132, 134, 135, 137, 143, 144, 146, 147, 148, 149, 150, 151, 153, 154, 155, 156, 159, 161, 163]
     unsolved = []
-    todo_arr = {0, 1, 2, 5, 11, 12, 13, 16, 18, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 33, 34, 38, 39, 40, 44, 45, 46, 48, 49, 51, 53, 54, 62, 64, 65, 66, 67, 69, 70, 71, 72, 73, 74, 76, 78, 79, 82, 83, 86, 87, 91, 93, 95, 96, 98, 99, 100, 102, 105, 106, 107, 108, 111, 113, 114, 115, 116, 119, 120, 121, 122, 123, 124, 125, 127, 130, 131, 132, 134, 135, 137, 143, 144, 146, 147, 148, 149, 150, 151, 153, 154, 155, 156, 159, 161, 163}
-    
+    todo_arr = {
+        0,
+        1,
+        2,
+        5,
+        11,
+        12,
+        13,
+        16,
+        18,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        33,
+        34,
+        38,
+        39,
+        40,
+        44,
+        45,
+        46,
+        48,
+        49,
+        51,
+        53,
+        54,
+        62,
+        64,
+        65,
+        66,
+        67,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        76,
+        78,
+        79,
+        82,
+        83,
+        86,
+        87,
+        91,
+        93,
+        95,
+        96,
+        98,
+        99,
+        100,
+        102,
+        105,
+        106,
+        107,
+        108,
+        111,
+        113,
+        114,
+        115,
+        116,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        127,
+        130,
+        131,
+        132,
+        134,
+        135,
+        137,
+        143,
+        144,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        153,
+        154,
+        155,
+        156,
+        159,
+        161,
+        163,
+    }
+
     for i in range(len(problem_sets)):
         if i not in todo_arr:
             continue
@@ -74,13 +172,12 @@ def solve_b(problem_sets):
 
         #         break
 
-        min_steps = bfs(initial_state=joltage_target, actions=actions)
+        min_steps = dfs(joltage_target, 0, actions, set())
+        # min_steps = bfs(initial_state=joltage_target, actions=actions)
         if min_steps == 0:
             unsolved.append(i)
 
-        print(
-            f"{i} min_steps = {min_steps} pre-steps={pre_count}"
-        )
+        print(f"{i} min_steps = {min_steps} pre-steps={pre_count}")
         result += min_steps + pre_count
 
     print(f"result-b = {result}")
@@ -172,6 +269,42 @@ def perform_joltage_action(
     return new_state
 
 
+def dfs(current_state, steps, actions, visited):
+    # Check if we have reached the goal state
+    if all(x == 0 for x in current_state):
+        return steps
+
+    # Generate state tuple for visited check
+    state_tuple = tuple(current_state)
+
+    # Prune states already visited or invalid states (where any value < 0)
+    if state_tuple in visited or any(x < 0 for x in current_state):
+        return float("inf")  # Represent an invalid route
+
+    # Mark this state as visited
+    visited.add(state_tuple)
+
+    min_steps = float("inf")
+
+    # Try all actions
+    for action in actions:
+        # Create a new state based on the action
+        new_state = current_state[:]
+
+        for idx in action:
+            if new_state[idx] > 0:  # Only decrement if value is greater than 0
+                new_state[idx] -= 1
+
+        # Recur for the new state
+        result = dfs(new_state, steps + 1, actions, visited)
+        min_steps = min(min_steps, result)
+
+    # Backtrack: Unmark this state
+    visited.remove(state_tuple)
+
+    return min_steps
+
+
 def bfs(
     initial_state: list[int],
     actions: list[list[int]],
@@ -183,7 +316,7 @@ def bfs(
     while queue:
         joltage_state, count = queue.popleft()
 
-        if len(queue) > 2E6:
+        if len(queue) > 2e6:
             return 0
 
         # Skip if we've already visited this state
@@ -199,7 +332,7 @@ def bfs(
         # Explore the next states we can reach from current state using actions
         for action in actions:
             new_joltage = perform_joltage_action(joltage_state, action)
-            
+
             # Check if new state is valid (all values >= 0)
             if all(n >= 0 for n in new_joltage):
                 new_state_key = tuple(new_joltage)
