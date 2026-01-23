@@ -99,9 +99,7 @@ def solve_8a(arr: list[tuple[int, int, int]], num_of_connections: int, part_b: b
         # this is for part-b.  A single circuit and all junctions used
         if part_b and len(circuits) == 1:
             result = pos1[0] * pos2[0]
-            print(
-                f"part-b. Junctions left: {len(junctions)}. {key1} - {key2}: {pos1} - {pos2}.  Result = {result}"
-            )
+            print(f"part-b. Junctions left: {len(junctions)}. {key1} - {key2}: {pos1} - {pos2}.  Result = {result}")
             if len(junctions) == 0:
                 print("done")
                 return

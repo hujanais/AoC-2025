@@ -101,22 +101,14 @@ def is_rectangle_valid(X1, X2, coord, vertical_edges, horizontal_edges):
 
     # Check horizontal polygon edges
     for y_edge, x_start, x_end in horizontal_edges:
-        if (
-            y_min < y_edge < y_max
-        ):  # y-coordinate is strictly between y_min and y_max (not on boundary)
-            if not (
-                x_end <= x_min or x_start >= x_max
-            ):  # edge crosses through rectangle
+        if y_min < y_edge < y_max:  # y-coordinate is strictly between y_min and y_max (not on boundary)
+            if not (x_end <= x_min or x_start >= x_max):  # edge crosses through rectangle
                 return False
 
     # Check vertical polygon edges
     for x_edge, y_start, y_end in vertical_edges:
-        if (
-            x_min < x_edge < x_max
-        ):  # x-coordinate is strictly between x_min and x_max (not on boundary)
-            if not (
-                y_end <= y_min or y_start >= y_max
-            ):  # edge crosses through rectangle
+        if x_min < x_edge < x_max:  # x-coordinate is strictly between x_min and x_max (not on boundary)
+            if not (y_end <= y_min or y_start >= y_max):  # edge crosses through rectangle
                 return False
 
     return True

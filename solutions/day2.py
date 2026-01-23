@@ -68,7 +68,7 @@ def is_repeat2(strValue: str, block_size: int = 1) -> bool:
         block_set.clear()
         while i < len(strValue):
             j = i + block_size
-            block_set.add(strValue[i : j])
+            block_set.add(strValue[i:j])
             i = i + block_size
 
             if len(block_set) > 1:

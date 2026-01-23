@@ -13,8 +13,8 @@ def inspect_parquet():
     # Create mock data
     num_entries = 50
 
-    filenames = [f"nitf_file_{i+1}" for i in range(num_entries)]
-    point_ids = [f"pointid_{i+1}" for i in range(num_entries)]
+    filenames = [f"nitf_file_{i + 1}" for i in range(num_entries)]
+    point_ids = [f"pointid_{i + 1}" for i in range(num_entries)]
     longitudes = np.random.uniform(42.375, 42.385, num_entries).tolist()
     latitudes = np.random.uniform(-71.105, -71.100, num_entries).tolist()
     elevations = np.random.uniform(10, 20, num_entries).tolist()
@@ -24,7 +24,7 @@ def inspect_parquet():
     grid_y = np.random.uniform(5, 15, num_entries).tolist()
     pixels_between_grid_cols = [100] * num_entries
     pixels_between_grid_rows = [100] * num_entries
-    image_ids = [f"IMG_{str(i+1).zfill(3)}" for i in range(num_entries)]
+    image_ids = [f"IMG_{str(i + 1).zfill(3)}" for i in range(num_entries)]
     sensor_x = np.random.uniform(4521200, 4521300, num_entries).tolist()
     sensor_y = np.random.uniform(-4238300, -4238100, num_entries).tolist()
     sensor_z = np.random.uniform(4152900, 4153100, num_entries).tolist()
@@ -91,7 +91,6 @@ def get_surrounding_box(coordinates: list[list[float]]):
 
 
 if __name__ == "__main__":
-
     # Create sample data
     metadata = pl.DataFrame(
         {
@@ -161,18 +160,11 @@ if __name__ == "__main__":
     )
 
     # Get Unique Images + Coordinates
-    unique_images = (
-        metadata.unique("image_id")
-        .select("image_id", "coordinates")
-        .sort(by="image_id")
-        .to_dict()
-    )
+    unique_images = metadata.unique("image_id").select("image_id", "coordinates").sort(by="image_id").to_dict()
 
     print(unique_images)
 
     # Create Geographic Bounding Boxes
     geographic_boxes = {}
-    for image, coordinates in zip(
-        unique_images["image_id"], unique_images["coordinates"], strict=False
-    ):
+    for image, coordinates in zip(unique_images["image_id"], unique_images["coordinates"], strict=False):
         geographic_boxes[image] = get_surrounding_box(coordinates)

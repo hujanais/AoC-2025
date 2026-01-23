@@ -3,9 +3,7 @@ import math
 
 def do_day1():
     # do_work("./data/day1_test.txt")  # returns 32, 3 | 6
-    do_work(
-        "./data/day1.txt"
-    )  # final dial position: 70.  Password1: 1147, Password2: 6789
+    do_work("./data/day1.txt")  # final dial position: 70.  Password1: 1147, Password2: 6789
 
 
 def do_work(filepath: str):
@@ -56,9 +54,7 @@ def optimized_solution(lines_list: list[str]):
         result2 += rotations
         prev_position = dial_position
 
-    print(
-        f"final dial position: {dial_position}.  Password1: {result}, Password2: {result2}"
-    )
+    print(f"final dial position: {dial_position}.  Password1: {result}, Password2: {result2}")
 
 
 def brute_force(lines_list: list[str]):
@@ -86,9 +82,7 @@ def brute_force(lines_list: list[str]):
         if position == 0:
             at_zero += 1
 
-    print(
-        f"final dial position: {position}.  Password1: {at_zero}, Password2: {hit_zero}"
-    )
+    print(f"final dial position: {position}.  Password1: {at_zero}, Password2: {hit_zero}")
 
 
 if __name__ == "__main__":

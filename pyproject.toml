@@ -9,6 +9,7 @@ dependencies = [
     "numpy>=2.4.0",
     "pandas>=2.3.3",
     "polars>=1.36.1",
+    "ruff>=0.14.14",
 ]
 
 [build-system]
@@ -17,3 +18,9 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["utilities", "solutions"]
+
+[tool.ruff]
+line-length = 160
+
+[tool.ruff.format]
+line-ending = "auto"

@@ -30,9 +30,19 @@ def solve_a(problem_sets):
 
 def solve_b(problem_sets):
     result = 0
-    idx = 0
 
-    for prob in problem_sets:
+    # 3434 using 500000 depth
+    # [0, 1, 2, 5, 11, 12, 13, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 33, 34, 36, 38, 39, 40, 43, 44, 45, 46, 48, 49, 50, 51, 53, 54, 56, 62, 64, 65, 66, 67, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 82, 83, 84, 86, 87, 88, 91, 93, 95, 96, 98, 99, 100, 102, 105, 106, 107, 108, 111, 113, 114, 115, 116, 117, 119, 120, 121, 122, 123, 124, 125, 127, 129, 130, 131, 132, 133, 134, 135, 136, 137, 143, 144, 146, 147, 148, 149, 150, 151, 153, 154, 155, 156, 158, 159, 161, 162, 163]
+
+    # 1486 using 2E6 depth
+    # [0, 1, 2, 5, 11, 12, 13, 16, 18, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 33, 34, 38, 39, 40, 44, 45, 46, 48, 49, 51, 53, 54, 62, 64, 65, 66, 67, 69, 70, 71, 72, 73, 74, 76, 78, 79, 82, 83, 86, 87, 91, 93, 95, 96, 98, 99, 100, 102, 105, 106, 107, 108, 111, 113, 114, 115, 116, 119, 120, 121, 122, 123, 124, 125, 127, 130, 131, 132, 134, 135, 137, 143, 144, 146, 147, 148, 149, 150, 151, 153, 154, 155, 156, 159, 161, 163]
+    unsolved = []
+    todo_arr = {0, 1, 2, 5, 11, 12, 13, 16, 18, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 33, 34, 38, 39, 40, 44, 45, 46, 48, 49, 51, 53, 54, 62, 64, 65, 66, 67, 69, 70, 71, 72, 73, 74, 76, 78, 79, 82, 83, 86, 87, 91, 93, 95, 96, 98, 99, 100, 102, 105, 106, 107, 108, 111, 113, 114, 115, 116, 119, 120, 121, 122, 123, 124, 125, 127, 130, 131, 132, 134, 135, 137, 143, 144, 146, 147, 148, 149, 150, 151, 153, 154, 155, 156, 159, 161, 163}
+    
+    for i in range(len(problem_sets)):
+        if i not in todo_arr:
+            continue
+        prob = problem_sets[i]
         actions = prob[1]
         joltage_target = list(
             map(lambda x: int(x), prob[2].replace("{", "").replace("}", "").split(","))
@@ -41,37 +51,40 @@ def solve_b(problem_sets):
         # find the first action that has a unique index
         indices = {}
         pre_count = 0
-        for i in range(len(actions)):
-            action = actions[i]
-            for act in action:
-                key = str(act)
-                if key in indices:
-                    count, idx = indices[key]
-                    indices[key] = (count + 1, idx)
-                else:
-                    indices[key] = (1, i)
+        # for i in range(len(actions)):
+        #     action = actions[i]
+        #     for act in action:
+        #         key = str(act)
+        #         if key in indices:
+        #             count, idx = indices[key]
+        #             indices[key] = (count + 1, idx)
+        #         else:
+        #             indices[key] = (1, i)
 
-        for key, value in indices.items():
-            if value[0] == 1:
-                # apply action[value[1]]
-                preapply_action = actions[action[1]]
+        # for key, value in indices.items():
+        #     if value[0] == 1:
+        #         # apply action[value[1]]
+        #         preapply_action = actions[action[1]]
 
-                while all([x > 0 for x in joltage_target]):
-                    pre_count += 1
-                    _, joltage_target = perform_action(
-                        joltage_target, preapply_action, joltage_target
-                    )
+        #         while all([x > 0 for x in joltage_target]):
+        #             pre_count += 1
+        #             _, joltage_target = perform_action(
+        #                 joltage_target, preapply_action, joltage_target
+        #             )
 
-                break
+        #         break
 
-        min_steps, shortest_path = bfs(initial_state=joltage_target, actions=actions)
+        min_steps = bfs(initial_state=joltage_target, actions=actions)
+        if min_steps == 0:
+            unsolved.append(i)
+
         print(
-            f"{idx} min_steps = {min_steps} pre-steps={pre_count}, path = {shortest_path}"
+            f"{i} min_steps = {min_steps} pre-steps={pre_count}"
         )
         result += min_steps + pre_count
-        idx += 1
 
     print(f"result-b = {result}")
+    print(unsolved)
 
 
 def exp(
@@ -149,32 +162,51 @@ def exp(
     return (min_steps, best_path)
 
 
+def perform_joltage_action(
+    joltage_state: list[int], action_arr: list[int]
+) -> list[int]:
+    """Apply action to joltage state by decrementing indices in action_arr."""
+    new_state = joltage_state.copy()
+    for action in action_arr:
+        new_state[action] -= 1
+    return new_state
+
+
 def bfs(
     initial_state: list[int],
     actions: list[list[int]],
 ):
     target = [0 for i in range(len(initial_state))]
-    queue = deque([(initial_state, 0)])  # ([0,0,0,0], count)
+    queue = deque([(initial_state, 0)])  # (state, count)
     visited = set()
 
     while queue:
         joltage_state, count = queue.popleft()
 
+        if len(queue) > 2E6:
+            return 0
+
+        # Skip if we've already visited this state
+        state_key = tuple(joltage_state)
+        if state_key in visited:
+            continue
+        visited.add(state_key)
+
         # If we reach the target amount, return the number of steps used
         if joltage_state == target:
-            return (count, [])
+            return count
 
-        # Explore the next amounts we can make from current_amount using the coins
+        # Explore the next states we can reach from current state using actions
         for action in actions:
-            _, new_joltage = perform_action(joltage_state, action, joltage_state)
-            if all(n >= 0 for n in joltage_state):
-                if tuple(new_joltage) not in visited:
-                    visited.add(tuple(new_joltage))
+            new_joltage = perform_joltage_action(joltage_state, action)
+            
+            # Check if new state is valid (all values >= 0)
+            if all(n >= 0 for n in new_joltage):
+                new_state_key = tuple(new_joltage)
+                if new_state_key not in visited:
                     queue.append((new_joltage, count + 1))
-            else:
-                print(f"skip. {len(queue)}, {joltage_state}")
 
-    return (-1, [])
+    return -1
 
 
 def coin_change_bfs(coins, target):

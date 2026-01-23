@@ -73,7 +73,6 @@ def find_max_rectangle(
 
     for i in range(len(positions) - 1):
         for j in range(i + 1, len(positions)):
-
             if count % 100 == 0:
                 print(f"{count}")
             count -= 1
@@ -101,9 +100,7 @@ def find_max_rectangle(
                     rectangles.append([area, (ul, ur, bl, br), True])
                     max_area = max(max_area, area)
                 else:
-                    rectangles.append(
-                        [area, (ul, ur, bl, br), False]
-                    )  # don't do this to save memory
+                    rectangles.append([area, (ul, ur, bl, br), False])  # don't do this to save memory
                     pass
             else:
                 rectangles.append([area, (ul, ur, bl, br)])
@@ -118,9 +115,7 @@ def find_max_rectangle(
 
 
 # use ray-tracing to see if the point will intersect 4 sides of the outline.
-def ray_trace(
-    point: tuple[int, int], outline_sorted_by_rows, outline_sorted_by_cols
-) -> bool:
+def ray_trace(point: tuple[int, int], outline_sorted_by_rows, outline_sorted_by_cols) -> bool:
     row, col = point
 
     # test row

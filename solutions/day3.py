@@ -1,8 +1,10 @@
 import time
 
+
 def day3():
     solve("./data/day3_test.txt")  # 357, 3121910778619
     # solve("./data/day3.txt")  # 17766, 176582889354075 This is very slow. many minutes!
+
 
 def solve(filepath: str):
     with open(filepath, "r") as file:
@@ -17,6 +19,7 @@ def solve(filepath: str):
         print(f"- {result} {result2}")
 
     print(f"{result}, {result2}")
+
 
 def _findLargestPair(strValue: str) -> int:
     # print(f"find largest: {strValue}")
@@ -62,6 +65,7 @@ def _findLargest12(s: str, start=0, current=""):
         maxValueStr = str(max(int(maxValueStr), int(val)))
 
     return maxValueStr
+
 
 if __name__ == "__main__":
     day3()

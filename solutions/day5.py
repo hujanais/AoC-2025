@@ -15,9 +15,7 @@ class IdRange:
         return value >= self.startIdx and value <= self.endIdx
 
     def isRangeOverlapped(self, input_range: IdRange):
-        return (
-            self.startIdx <= input_range.endIdx and self.endIdx >= input_range.startIdx
-        )
+        return self.startIdx <= input_range.endIdx and self.endIdx >= input_range.startIdx
 
     def __repr__(self):
         return f"{self.startIdx} - {self.endIdx}"
